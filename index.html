@@ -115,6 +115,47 @@
         line-height: 1.6;
       }
 
+      .upload-control {
+        margin-top: 14px;
+      }
+
+      .upload-control label {
+        display: inline-block;
+        margin-bottom: 6px;
+        color: #bdbdbd;
+        font-size: 12px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+
+      .upload-control input[type="file"] {
+        width: 100%;
+        max-width: 320px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ddd;
+        border-radius: 8px;
+        padding: 8px;
+      }
+
+      .reset-button {
+        margin-top: 10px;
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.25s ease;
+      }
+
+      .reset-button:hover {
+        background: rgba(255, 107, 0, 0.25);
+        border-color: rgba(255, 107, 0, 0.8);
+      }
+
       .key {
         background: rgba(255, 255, 255, 0.1);
         padding: 3px 8px;
@@ -190,6 +231,14 @@
       <div class="controls">
         <p>Use <span class="key">↑↓←→</span> arrow keys to move</p>
         <p>Power up to eat Teachers!</p>
+        <div class="upload-control">
+          <label for="pacman-upload">Upload player picture</label><br />
+          <input id="pacman-upload" type="file" accept="image/*" />
+          <br />
+          <button id="reset-pacman" class="reset-button" type="button">
+            Reset to default Pacman
+          </button>
+        </div>
       </div>
 
       <div class="links">
@@ -211,6 +260,71 @@
           '<div class="error-message">Sorry, your browser needs to support HTML5 Canvas, Local Storage, and Audio.<br/>' +
           '(Firefox 3.6+, Chrome 4+, Opera 10+ and Safari 4+)</div>';
       }
+
+      var uploadInput = document.getElementById("pacman-upload");
+      var resetButton = document.getElementById("reset-pacman");
+      var STORAGE_KEY = "pacmanCustomImage";
+      var currentObjectUrl = null;
+
+      function applyStoredPlayerImage() {
+        var storedImage = localStorage.getItem(STORAGE_KEY);
+        if (!storedImage) {
+          return;
+        }
+        PACMAN.setPlayerImage(storedImage);
+      }
+
+      if (uploadInput) {
+        uploadInput.addEventListener("change", function (event) {
+          var file = event.target.files && event.target.files[0];
+          if (!file) {
+            return;
+          }
+
+          if (!file.type || file.type.indexOf("image/") !== 0) {
+            alert("Please choose a valid image file.");
+            event.target.value = "";
+            return;
+          }
+
+          // Apply immediately so large files still work even if storage fails.
+          if (currentObjectUrl) {
+            URL.revokeObjectURL(currentObjectUrl);
+          }
+          currentObjectUrl = URL.createObjectURL(file);
+          PACMAN.setPlayerImage(currentObjectUrl);
+
+          var reader = new FileReader();
+          reader.onload = function (readerEvent) {
+            var imageData = readerEvent.target.result;
+            try {
+              localStorage.setItem(STORAGE_KEY, imageData);
+            } catch (storageError) {
+              console.warn("Could not store custom Pac-Man image:", storageError);
+            }
+          };
+          reader.onerror = function () {
+            alert("Could not save this image for next time, but it should still work now.");
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      if (resetButton) {
+        resetButton.addEventListener("click", function () {
+          localStorage.removeItem(STORAGE_KEY);
+          if (currentObjectUrl) {
+            URL.revokeObjectURL(currentObjectUrl);
+            currentObjectUrl = null;
+          }
+          PACMAN.setPlayerImage("./pacman.png");
+          if (uploadInput) {
+            uploadInput.value = "";
+          }
+        });
+      }
+
+      window.setTimeout(applyStoredPlayerImage, 100);
     </script>
   </body>
 </html>

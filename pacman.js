@@ -351,6 +351,26 @@ Pacman.User = function (game, map, imageUrl) {
         pacmanImage.src = imageUrl;
     }
 
+    function setImage(src) {
+        if (!src) {
+            pacmanImage = null;
+            imageLoaded = false;
+            return;
+        }
+
+        var img = new Image();
+        img.onload = function () {
+            pacmanImage = img;
+            imageLoaded = true;
+        };
+        img.onerror = function () {
+            console.warn("Failed to load Pac-Man image: " + src);
+            pacmanImage = null;
+            imageLoaded = false;
+        };
+        img.src = src;
+    };
+
     function addScore(nScore) { 
         score += nScore;
         if (score >= 10000 && score - nScore < 10000) { 
@@ -615,7 +635,8 @@ Pacman.User = function (game, map, imageUrl) {
         "move"          : move,
         "newLevel"      : newLevel,
         "reset"         : reset,
-        "resetPosition" : resetPosition
+        "resetPosition" : resetPosition,
+        "setImage"      : setImage
     };
 };
 
@@ -1231,9 +1252,17 @@ var PACMAN = (function () {
         
         timer = window.setInterval(mainLoop, 1000 / Pacman.FPS);
     };
+
+    function setPlayerImage(imageSource) {
+        if (!user || typeof user.setImage !== "function") {
+            return;
+        }
+        user.setImage(imageSource);
+    }
     
     return {
-        "init" : init
+        "init"           : init,
+        "setPlayerImage" : setPlayerImage
     };
     
 }());

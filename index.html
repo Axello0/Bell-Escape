@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bell-Escape池上</title>
+    
+    <style type="text/css">
+      @font-face {
+        font-family: 'BDCartoonShoutRegular';
+        src: url('BD_Cartoon_Shout-webfont.ttf') format('truetype');
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        color: #fff;
+      }
+
+      .container {
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        max-width: 500px;
+        width: 100%;
+        animation: slideIn 0.6s ease-out;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      h1 {
+        font-family: 'BDCartoonShoutRegular', sans-serif;
+        font-size: 48px;
+        background: linear-gradient(135deg, #ffff00 0%, #ff6b00 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 4px 15px rgba(255, 107, 0, 0.4);
+        margin-bottom: 10px;
+        letter-spacing: 2px;
+      }
+
+      .subtitle {
+        font-size: 14px;
+        color: #aaa;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-weight: 600;
+      }
+
+      #shim {
+        font-family: BDCartoonShoutRegular;
+        position: absolute;
+        visibility: hidden;
+      }
+
+      .game-wrapper {
+        position: relative;
+        margin: 30px auto;
+        background: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(255, 107, 0, 0.3), 0 0 30px rgba(0, 100, 200, 0.2);
+        border: 2px solid rgba(255, 107, 0, 0.2);
+      }
+
+      #pacman {
+        height: 450px;
+        width: 342px;
+        margin: 0 auto;
+        display: block;
+        background: #000;
+        border-radius: 8px;
+      }
+
+      .controls {
+        margin-top: 25px;
+        text-align: center;
+        font-size: 13px;
+        color: #888;
+      }
+
+      .controls p {
+        margin: 8px 0;
+        line-height: 1.6;
+      }
+
+      .key {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 3px 8px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        font-family: monospace;
+        font-weight: bold;
+        color: #ffff00;
+      }
+
+      .links {
+        margin-top: 25px;
+        text-align: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 20px;
+      }
+
+      .links a {
+        text-decoration: none;
+        color: #ff6b00;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        margin: 0 10px;
+        display: inline-block;
+      }
+
+      .links a:hover {
+        color: #ffff00;
+        text-shadow: 0 0 10px rgba(255, 255, 0, 0.5);
+        transform: translateY(-2px);
+      }
+
+      .error-message {
+        background: rgba(255, 0, 0, 0.2);
+        border: 1px solid #ff4444;
+        color: #ffaaaa;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 600px) {
+        .container {
+          padding: 20px;
+        }
+
+        h1 {
+          font-size: 32px;
+        }
+
+        #pacman {
+          height: 340px;
+          width: 258px;
+        }
+      }
+    </style>
+
+  </head>
+
+  <body>
+    <div id="shim">shim for font face</div>
+
+    <div class="container">
+      <div class="header">
+        <h1>Bell-Escape</h1>
+        <p class="subtitle">Run away from the Teachers!</p>
+      </div>
+
+      <div id="pacman" class="game-wrapper"></div>
+
+      <div class="controls">
+        <p>Use <span class="key">↑↓←→</span> arrow keys to move</p>
+        <p>Power up to eat Teachers!</p>
+      </div>
+
+      <div class="links">
+        <a href="#" onclick="location.reload(); return false;">New Game</a>
+      </div>
+    </div>
+
+    <script src="pacman.js"></script>
+    <script src="modernizr-1.5.min.js"></script>
+
+    <script>
+      var el = document.getElementById("pacman");
+
+      if (Modernizr.canvas && Modernizr.localstorage && 
+          Modernizr.audio && (Modernizr.audio.ogg || Modernizr.audio.mp3)) {
+        window.setTimeout(function () { PACMAN.init(el, "./"); }, 0);
+      } else {
+        document.querySelector('.game-wrapper').innerHTML = 
+          '<div class="error-message">Sorry, your browser needs to support HTML5 Canvas, Local Storage, and Audio.<br/>' +
+          '(Firefox 3.6+, Chrome 4+, Opera 10+ and Safari 4+)</div>';
+      }
+    </script>
+  </body>
+</html>
